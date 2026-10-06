@@ -1,0 +1,134 @@
+{
+    "feature_settings": {
+        "description": "基础功能",
+        "type": "object",
+        "items": {
+            "enabled": {
+                "description": "表情包系统开关",
+                "type": "bool",
+                "default": true,
+                "hint": "关闭后不再向模型注入表情包规则，也不会发送表情包（模型回复中残留的 [STK:] 标签仍会被清理）"
+            },
+            "send_delay": {
+                "description": "表情包发送延迟（秒）",
+                "type": "float",
+                "default": 0.5,
+                "hint": "发送表情包前等待的秒数，避免表情包抢在文字回复之前送达；设为 0 表示立即发送"
+            },
+            "max_per_reply": {
+                "description": "单条回复最多发送数量",
+                "type": "int",
+                "default": 3,
+                "hint": "模型一次回复中最多发送多少张表情包，超出的 [STK:] 标签会被忽略（至少为 1）"
+            },
+            "legacy_fallback": {
+                "description": "回退读取旧插件表情包目录",
+                "type": "bool",
+                "default": true,
+                "hint": "开启后，当本插件目录下没有可用分类时，自动回退读取 data/plugin_data/astrbot_plugin_favorability/stickers/ 中已有的表情包，便于从好感度插件平滑拆分迁移"
+            },
+            "sticker_root": {
+                "description": "表情包根目录（可选）",
+                "type": "string",
+                "default": "",
+                "hint": "留空则使用插件数据目录下的 stickers/ 子目录；也可以填绝对路径，或相对于插件数据目录的相对路径，用于与其它插件共用同一套表情包"
+            }
+        }
+    },
+    "prompt_settings": {
+        "description": "提示词设置",
+        "type": "object",
+        "items": {
+            "prompt_preset": {
+                "description": "表情包提示词预设",
+                "type": "string",
+                "default": "default",
+                "options": [
+                    "default",
+                    "old",
+                    "custom"
+                ],
+                "hint": "default：当前推荐的发送条件；old：旧版发送条件；custom：使用下方自定义配置"
+            },
+            "sticker_condition": {
+                "description": "表情包发送条件",
+                "type": "text",
+                "default": "仅当表情包能够自然表达当前情绪、语气或场景时发送；普通回复、信息性回复或没有合适分类时不要发送。",
+                "hint": "仅在选择 custom 时显示；自定义表情包发送条件，留空后重载插件会自动恢复默认条件。",
+                "condition": {
+                    "prompt_preset": "custom"
+                }
+            },
+            "sticker_prompt_core": {
+                "description": "表情包提示词模板",
+                "type": "text",
+                "default": "--- 表情包机制 ---\n1. 发送条件：{sticker_condition}\n2. 发送格式：将 `[STK:分类名]` 放在回复正文末尾。\n3. 可用分类：{categories}\n4. 如果没有合适分类或无法确定分类，可以不发送；不要虚构不存在的分类。",
+                "hint": "仅在选择 custom 时显示；支持 {sticker_condition} 与 {categories} 占位符，留空后重载插件会自动恢复内置模板。",
+                "condition": {
+                    "prompt_preset": "custom"
+                }
+            }
+        }
+    },
+    "persona_settings": {
+        "description": "人格独立配置",
+        "type": "object",
+        "items": {
+            "persona_overrides": {
+                "description": "人格独立配置列表",
+                "type": "template_list",
+                "hint": "在此为人格设置专属的表情包开关、子目录与发送条件。未配置的人格将自动继承上方全局默认设置。",
+                "templates": {
+                    "persona_override": {
+                        "name": "人格独立配置",
+                        "display_item": "persona_id",
+                        "items": {
+                            "persona_id": {
+                                "description": "目标人格",
+                                "type": "string",
+                                "_special": "select_persona",
+                                "default": "",
+                                "hint": "选择已有的人格或输入人格标识名称"
+                            },
+                            "enabled": {
+                                "description": "表情包系统开关",
+                                "type": "bool",
+                                "default": true,
+                                "hint": "该人格是否启用表情包功能"
+                            },
+                            "sticker_dir_name": {
+                                "description": "专属表情包子目录名",
+                                "type": "string",
+                                "default": "",
+                                "hint": "该人格表情包存放的子文件夹名，留空则默认按人格名称存放于 stickers/<人格名>/ 目录"
+                            },
+                            "prompt_preset": {
+                                "description": "表情包提示词预设",
+                                "type": "string",
+                                "default": "default",
+                                "options": [
+                                    "default",
+                                    "old",
+                                    "custom"
+                                ],
+                                "hint": "default：推荐发送条件；old：旧版发送条件；custom：使用下方自定义配置"
+                            },
+                            "sticker_condition": {
+                                "description": "表情包发送条件",
+                                "type": "text",
+                                "default": "",
+                                "hint": "留空继承全局表情包发送条件"
+                            },
+                            "sticker_prompt_core": {
+                                "description": "表情包提示词模板",
+                                "type": "text",
+                                "default": "",
+                                "hint": "留空继承全局提示词模板"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

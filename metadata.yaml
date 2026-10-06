@@ -1,0 +1,42 @@
+name: astrbot_plugin_sticker_reply
+display_name: 表情包系统
+desc: 表情包系统——LLM 通过 [STK:分类名] 标签调用本地表情包，支持人格独立目录、分类随机发送与发送条件自定义。由 astrbot_plugin_favorability 的表情包功能拆分而来。
+short_desc: 让 AI 用本地表情包回应你。
+help: |
+  让 AI 在回复时用本地表情包回应。
+
+  用户指令：
+    /表情包分类            — 查看当前人格可用的表情包分类与数量
+    /随机表情包 [分类]     — 立即发送一张随机表情包，用于验证目录配置
+
+  表情包目录（默认）：
+    data/plugin_data/astrbot_plugin_sticker_reply/stickers/<分类名>/
+    data/plugin_data/astrbot_plugin_sticker_reply/stickers/<人格名>/<分类名>/
+
+  支持 jpg / png / gif / webp，放好图片即可生效，无需重载插件。
+
+  从旧版升级：
+    本插件由 astrbot_plugin_favorability 的表情包功能拆分而来。默认开启
+    「回退读取旧插件表情包目录」，当新目录下没有分类时会自动读取
+    data/plugin_data/astrbot_plugin_favorability/stickers/，
+    因此不移动文件也能直接使用；想彻底迁移时把该目录内容复制到新目录即可。
+
+  工作方式：
+    - 插件把「可用分类 + 发送条件」注入 system_prompt，模型在需要时于回复末尾
+      输出 [STK:分类名]
+    - 插件解析该标签，从对应分类中随机挑一张图片补发，并从正文中移除标签
+    - 一条回复最多发送 max_per_reply 张表情包
+
+  设置项（WebUI）：
+    - 表情包系统开关：启用/禁用表情包功能
+    - 表情包发送延迟：发送前等待的秒数，避免抢在文字回复之前
+    - 单条回复最多发送数量：超出的标签会被忽略
+    - 回退读取旧插件表情包目录：兼容 astrbot_plugin_favorability 的已有表情包
+    - 表情包根目录：留空使用插件数据目录，也可指定绝对/相对路径共用一套表情包
+    - 表情包提示词预设：可选 default / old / custom
+    - 表情包发送条件：自定义模型发送表情包的判断条件
+    - 表情包提示词模板：自定义注入给模型的规则文本，支持 {sticker_condition}、{categories}
+    - 人格独立配置：为不同人格设置专属开关、表情包子目录与发送条件
+version: v1.0.0
+author: Iris1598
+repo: "https://github.com/iris1598/astrbot_plugin_sticker_reply"
